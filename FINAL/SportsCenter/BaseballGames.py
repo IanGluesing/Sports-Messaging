@@ -43,6 +43,8 @@ def currentGame(game):
     # print(teams)
 
 def finalGame(game):
+    # need to take in type of time keeping to be able to use this emthod for football and baseball
+    # would need to take in the list class value for where the scores are located
     global finishedGames
     teams = game.xpath('.//li[@class = "label header" or @class = "label home header"]/a/text()')
     inList = False
