@@ -36,7 +36,7 @@ def getGameText(teams, scores, quarter, left, right):
 def checkCurGames():
     gameObjs = [CurrentGame(["", ""], ["", ""])]
     while True:
-        url, messageBox = FinishedGameInfo.getUrl('')
+        url, messageBox = FinishedGameInfo.getUrl('', 'Football')
         doc = lxml.html.fromstring(requests.get(url).content)
         currentGames = doc.xpath('.//div[@class = "game mid-event pre " or @class = "game mid-event pre game-even"]')
 
@@ -76,7 +76,7 @@ def checkCurGames():
 def gameStarting(teams, scores, quarter):
     message = (teams[0].strip() + " vs " + teams[1].strip() + " has started\n")
     message += (scores[0] + " - " + scores[1] + " --- " + quarter + "\n")
-    filler1, messageBox = FinishedGameInfo.getUrl('')
+    filler1, messageBox = FinishedGameInfo.getUrl('', 'Football')
     SlackBot.sendMessage(messageBox, message)
     return
 

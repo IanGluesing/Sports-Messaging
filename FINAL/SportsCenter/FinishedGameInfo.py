@@ -23,7 +23,7 @@ def checkFinishedGames():
     finishedGames = [FinishedGame(["",""])]
     while True:
         time.sleep(random.randint(120,180))
-        url, messageBox = getUrl('-final')
+        url, messageBox = getUrl('-final', 'Football')
         html = requests.get(url)
         doc = lxml.html.fromstring(html.content)
         gamesDone = doc.xpath('.//div[@class = "game post-event pre " or @class = "game post-event pre game-even"]')

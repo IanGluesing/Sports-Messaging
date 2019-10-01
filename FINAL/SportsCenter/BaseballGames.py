@@ -5,6 +5,7 @@ import random
 
 from SportsCenter import FinishedGameInfo
 from SportsCenter import CurrentGames
+from SportsCenter import SlackBot
 
 
 if __name__ == '__main__':
@@ -29,15 +30,36 @@ def checkAllGames():
                 # see if game is in the finishedgames list
                 # use method for this part
                 print("about to send game")
-                currentGame(game)
+                finalGame(game)
                 x = 1
-        time.sleep(100)
+        time.sleep(360)
 
 def currentGame(game):
-    scores = game.xpath('.//li[@class = "outcomes first"]/text()')
+    global currentGames
+    # might need to change these because they might have different values for games that are not finished yet
+    # scores = game.xpath('.//li[@class = "outcomes first"]/text()')
+    # teams = game.xpath('.//li[@class = "label header" or @class = "label home header"]/a/text()')
+    # print(scores)
+    # print(teams)
+
+def finalGame(game):
+    global finishedGames
     teams = game.xpath('.//li[@class = "label header" or @class = "label home header"]/a/text()')
-    print(scores)
-    print(teams)
+    inList = False
+    for finGame in finishedGames:
+        if finGame.team1 == teams[0] and finGame.team2 == teams[1]:
+            inList = True
+            break
+    if not inList:
+        inning = game.xpath('.//hgroup/h3/text()')[0].strip()
+        scores = game.xpath('.//li[@class = "outcomes first"]/text()')
+
+        message = inning + ":  " + teams[0].strip() + "-" + scores[0] + " vs "
+        message += teams[1].strip() + "-" + scores[1] + "\n"
+        SlackBot.sendMessage('mlb-final-scores', message)
+        finishedGames.insert(0, FinishedGameInfo.FinishedGame(teams))
+        finishedGames = finishedGames[:20]
+
 
 checkAllGames()
 
