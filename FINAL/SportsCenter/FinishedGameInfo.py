@@ -46,18 +46,21 @@ def checkFinishedGames():
                 finishedGames = finishedGames[:50]
 
 
-def getUrl(addition):
+def getUrl(addition, sportType):
     while True:
-        if calendar.day_name[date.today().weekday()] in ['Monday','Thursday'] and dt.datetime.now().hour > 17:
-            return Config.nflWebsite, 'nfl' + addition + '-scores'
-        elif calendar.day_name[date.today().weekday()] in ['Sunday'] and dt.datetime.now().hour > 11:
-            return Config.nflWebsite, 'nfl' + addition + '-scores'
-        elif calendar.day_name[date.today().weekday()] in ['Friday','Saturday'] and dt.datetime.now().hour > 10:
-            html = requests.get(Config.ncaaWeb1)
-            doc = lxml.html.fromstring(html.content)
-            section = doc.xpath('.//section[@id = "section_sports"]')
-            weekNum = section[0].xpath('.//span[@class = "sp-filter-btn sports-weekly-header-dropdown"]/text()')[2]
-            weekNum = weekNum.strip().split(" ")[1]
-            return Config.ncaaWeb2 + weekNum + '/div1.a/', 'ncaa' + addition + '-scores'
-        else:
-            time.sleep(60)
+        if sportType == 'Football':
+            if calendar.day_name[date.today().weekday()] in ['Monday','Thursday'] and dt.datetime.now().hour > 17:
+                return Config.nflWebsite, 'nfl' + addition + '-scores'
+            elif calendar.day_name[date.today().weekday()] in ['Sunday'] and dt.datetime.now().hour > 11:
+                return Config.nflWebsite, 'nfl' + addition + '-scores'
+            elif calendar.day_name[date.today().weekday()] in ['Friday','Saturday'] and dt.datetime.now().hour > 10:
+                html = requests.get(Config.ncaaWeb1)
+                doc = lxml.html.fromstring(html.content)
+                section = doc.xpath('.//section[@id = "section_sports"]')
+                weekNum = section[0].xpath('.//span[@class = "sp-filter-btn sports-weekly-header-dropdown"]/text()')[2]
+                weekNum = weekNum.strip().split(" ")[1]
+                return Config.ncaaWeb2 + weekNum + '/div1.a/', 'ncaa' + addition + '-scores'
+            else:
+                time.sleep(60)
+        elif sportType == "Baseball":
+            return Config.mlbWeb, ''

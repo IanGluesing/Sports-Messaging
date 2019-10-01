@@ -10,7 +10,7 @@ if __name__ == '__main__':
     x = 1
 
 
-class FootballGame:
+class CurrentGame:
     def __init__(self, teams, scores):
         self.team1 = teams[0]
         self.team2 = teams[1]
@@ -34,7 +34,7 @@ def getGameText(teams, scores, quarter, left, right):
 
 
 def checkCurGames():
-    gameObjs = [FootballGame(["",""],["",""])]
+    gameObjs = [CurrentGame(["", ""], ["", ""])]
     while True:
         url, messageBox = FinishedGameInfo.getUrl('')
         doc = lxml.html.fromstring(requests.get(url).content)
@@ -67,7 +67,7 @@ def checkCurGames():
 
                     SlackBot.sendMessage(messageBox, getGameText(teams, scores, quarter, teamLeft, teamRight))
             else:
-                gameObjs.insert(0, FootballGame(teams, scores))
+                gameObjs.insert(0, CurrentGame(teams, scores))
                 gameObjs = gameObjs[:50]
                 gameStarting(teams,scores,quarter)
         time.sleep(random.randint(120,180))
