@@ -27,13 +27,14 @@ teamStadiums = {"Kansas City Chiefs": "Arrowhead Stadium", "Dallas Cowboys": "AT
                 "Chicago Bears": "Soldier Field", "Arizona Cardinals": "State Farm Stadium",
                 "Jacksonville Jaguars": "TIAA Bank Field", "Minnesota Vikings": "U.S. Bank Stadium"}
 
+# This is how you are able to communicate with the reddit website and your reddit account
 reddit = praw.Reddit(client_id=Config.reddit_id,
                      client_secret=Config.reddit_secret,
                      username=Config.reddit_username,
                      password=Config.reddit_password,
                      user_agent=Config.reddit_agent)
 
-
+# Method to format messages for upcoming NFL games that will be sent to the user through slack
 def getFormattedGameString(submission):
     global teamStadiums
     parts = submission.title.split("@")
@@ -41,6 +42,7 @@ def getFormattedGameString(submission):
     newParts = parts[1].split(" (")
     finalStatement += " @ The " + newParts[0].strip() + "\nGame Time: " + newParts[1].replace(")", "")
 
+    # Loops through dictionary of teams and stadiums to be able to tell the user what stadium the game will be played at
     for key, val in teamStadiums.items():
         if key.lower() == newParts[0].strip().lower():
             finalStatement += "\nLocation: " + val
@@ -48,17 +50,24 @@ def getFormattedGameString(submission):
 
 
 def redditBot2():
+    # Gets the reddit information for the subreddit we are using to get posts from
     subreddit = reddit.subreddit(Config.reddit_subreddit_name)
     printedTitles = []
     while True:
+        # Will only run on Thursday, Sunday, or Monday because NFL games are not played on other days
         if date.today().weekday() in ['Thursday','Sunday','Monday']:
+            # Gets 15 most recent posts from the subreddit
             new_stream = subreddit.new(limit=15)
             for submission in new_stream:
+                # This will only be true if the title has a certain modifier and we have already sent a message
+                # that uses the title from the post
                 if submission.link_flair_text == Config.reddit_thread and submission.title not in printedTitles:
                     SlackBot.sendMessage('nfl-scores', getFormattedGameString(submission) + "\n")
                     printedTitles.insert(0, submission.title)
+            # Only keeps the 15 most recent titles so that the list will not continue to fill up while running forever
             printedTitles = printedTitles[:15]
             time.sleep(600)
         else:
+            # Checks every 8 hours to see if the current day is in the list of game days
             time.sleep(28800)
 
