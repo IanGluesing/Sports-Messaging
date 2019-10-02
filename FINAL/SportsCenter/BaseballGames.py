@@ -11,10 +11,11 @@ from SportsCenter import SlackBot
 if __name__ == '__main__':
     x = 1
 
-currentGames = [CurrentGames.CurrentGame(["", ""], ["", ""])]
+
 
 def checkAllGames():
     finishedGames = [FinishedGameInfo.FinishedGame(["", ""])]
+    currentGames = [CurrentGames.CurrentGame(["", ""], ["", ""])]
     while True:
         url, messageBox = FinishedGameInfo.getUrl('', 'Baseball')
         doc = lxml.html.fromstring(requests.get(url).content)
@@ -25,7 +26,7 @@ def checkAllGames():
             if game.get('class') in ['game mid-event pre ','game mid-event pre game-even']:
                 # see if scores have changed and print out info
                 # call method to do this
-                currentGame(game)
+                currentGames = currentGame(game, currentGames)
             if game.get('class') in ['game post-event pre ', 'game post-event pre game-even']:
                 # see if game is in the finishedgames list
                 # use method for this part
@@ -33,13 +34,32 @@ def checkAllGames():
                 finishedGames = finalGame(game, finishedGames, './/li[@class = "outcomes first"]/text()')
         time.sleep(360)
 
-def currentGame(game):
+def currentGame(game, gameList):
     global currentGames
     # might need to change these because they might have different values for games that are not finished yet
-    # scores = game.xpath('.//li[@class = "outcomes first"]/text()')
-    # teams = game.xpath('.//li[@class = "label header" or @class = "label home header"]/a/text()')
-    # print(scores)
-    # print(teams)
+    scores = game.xpath('.//li[@class = "outcomes first"]/text()')
+    teams = game.xpath('.//li[@class = "label header" or @class = "label home header"]/a/text()')
+    inList = False
+    for finGame in gameList:
+        # If the game mathces one of the games in the list, that means a game completion message was already sent
+        if finGame.team1 == teams[0] and finGame.team2 == teams[1]:
+            inList = True
+            break
+    if inList:
+        if finGame.score1 != scores[0] or finGame.score2 != scores[1]:
+            tme = game.xpath('.//hgroup/h3/text()')[0].strip()
+
+            message = teams[0].strip() + ' ' + scores[0] + ' - ' + teams[1].strip() + ' ' + scores[1] + "\t" + tme
+            SlackBot.sendMessage('mlb-scores', message)
+    else:
+        gameList.insert(0, CurrentGames.CurrentGame(teams,scores))
+        gameList = gameList[:30]
+        tme = game.xpath('.//hgroup/h3/text()')[0].strip()
+        CurrentGames.gameStarting(teams, scores, tme, 'BaseballCurrent')
+        return gameList
+
+
+
 
 def finalGame(game, gameList, scoreLocation):
     # need to take in type of time keeping to be able to use this emthod for football and baseball

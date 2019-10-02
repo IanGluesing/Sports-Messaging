@@ -59,3 +59,5 @@ def getUrl(addition, sportType):
                 time.sleep(60)
         elif sportType == "Baseball":
             return Config.mlbWeb, ''
+        elif sportType == "BaseballCurrent":
+            return '', 'mlb-scores'

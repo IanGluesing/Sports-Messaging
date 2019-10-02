@@ -69,14 +69,14 @@ def checkCurGames():
             else:
                 gameObjs.insert(0, CurrentGame(teams, scores))
                 gameObjs = gameObjs[:50]
-                gameStarting(teams,scores,quarter)
+                gameStarting(teams,scores,quarter, 'Football')
         time.sleep(random.randint(120,180))
 
 
-def gameStarting(teams, scores, quarter):
+def gameStarting(teams, scores, quarter, sport):
     message = (teams[0].strip() + " vs " + teams[1].strip() + " has started\n")
     message += (scores[0] + " - " + scores[1] + " --- " + quarter + "\n")
-    filler1, messageBox = FinishedGameInfo.getUrl('', 'Football')
+    filler1, messageBox = FinishedGameInfo.getUrl('', sport)
     SlackBot.sendMessage(messageBox, message)
     return
 
