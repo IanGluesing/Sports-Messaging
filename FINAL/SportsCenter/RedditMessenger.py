@@ -55,7 +55,7 @@ def redditBot2():
     printedTitles = []
     while True:
         # Will only run on Thursday, Sunday, or Monday because NFL games are not played on other days
-        if date.today().weekday() in ['Thursday','Sunday','Monday']:
+        if date.today().weekday() in [3,6,0]:
             # Gets 15 most recent posts from the subreddit
             new_stream = subreddit.new(limit=15)
             for submission in new_stream:
@@ -69,5 +69,6 @@ def redditBot2():
             time.sleep(600)
         else:
             # Checks every 8 hours to see if the current day is in the list of game days
+            print(date.today().weekday())
             time.sleep(28800)
 

@@ -35,7 +35,8 @@ def checkFinishedGames():
 
         for game in gamesDone:
             # Adds finished games to the list using the method from the Baseball file
-            finishedGames = BaseballGames.finalGame(game, finishedGames, './/li[@class = "outcomes total"]/text()')
+            finishedGames = BaseballGames.finalGame(game, finishedGames, './/li[@class = "outcomes total"]/text()',
+                                                    messageBox)
 
 
 def getUrl(addition, sportType):
@@ -58,6 +59,6 @@ def getUrl(addition, sportType):
             else:
                 time.sleep(60)
         elif sportType == "Baseball":
-            return Config.mlbWeb, ''
+            return Config.mlbWeb, 'mlb-final-scores'
         elif sportType == "BaseballCurrent":
             return '', 'mlb-scores'
