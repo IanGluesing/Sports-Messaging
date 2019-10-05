@@ -1,7 +1,6 @@
 import requests
 import lxml.html
 import time
-import random
 
 from SportsCenter import FinishedGameInfo
 from SportsCenter import CurrentGames
@@ -26,9 +25,8 @@ def checkAllGames():
             if game.get('class') in ['game mid-event pre ','game mid-event pre game-even']:
                 # see if scores have changed and print out info
                 # call method to do this
-                currentGames = curGame(game, currentGames, './/li[@class = "outcomes first"]/text()', 'mlb-scores','BaseballCurrent')
-                print("CURRENT GAMES AFTER METHOD")
-                print(currentGames)
+                currentGames = curGame(game, currentGames, './/li[@class = "outcomes first"]/text()', 'mlb-scores',
+                                       'BaseballCurrent')
             if game.get('class') in ['game post-event pre ', 'game post-event pre game-even']:
                 # see if game is in the finishedgames list
                 # use method for this part
@@ -43,19 +41,11 @@ def curGame(game, gameList, scoreLocation, messageBox, sportType):
     teams = game.xpath('.//li[@class = "label header" or @class = "label home header"]/a/text()')
     inList = False
 
-    print(gameList)
-
     for currentGame in gameList:
         # If the game mathces one of the games in the list, that means a game completion message was already sent
         if currentGame.team1 == teams[0] and currentGame.team2 == teams[1]:
             inList = True
-            print("going to break")
-            print(gameList)
-            print(currentGame.score1, currentGame.score2)
-            print(scores)
             break
-
-    print("checking if inlist part")
     if inList:
         if currentGame.score1 != scores[0] or currentGame.score2 != scores[1]:
             tme = game.xpath('.//hgroup/h3/text()')[0].strip()
@@ -64,8 +54,6 @@ def curGame(game, gameList, scoreLocation, messageBox, sportType):
             SlackBot.sendMessage(messageBox, message)
             currentGame.score1 = scores[0]
             currentGame.score2 = scores[1]
-            print(gameList)
-            print("inside if")
             return gameList
         return gameList
     else:

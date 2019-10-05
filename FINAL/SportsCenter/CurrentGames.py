@@ -18,21 +18,6 @@ class CurrentGame:
         self.score2 = scores[1]
 
 
-# def getGameText(teams, scores, quarter, left, right):
-#     finalString = teams[0].strip() + " vs " + teams[1].strip() + "\n"
-#     finalString += scores[0] + " - " + scores[1] + " --- " + quarter + "\n"
-#     finalString += teams[0].strip() + ": "
-#     for item in left[:4]:
-#         for info in item:
-#             finalString += info + ", "
-#
-#     finalString += "\n" + teams[1].strip() + ": "
-#     for item in right[:4]:
-#         for info in item:
-#             finalString += info + ", "
-#     return finalString + "\n"
-
-
 def checkCurGames():
     gameObjs = [CurrentGame(["", ""], ["", ""])]
     while True:
@@ -42,9 +27,7 @@ def checkCurGames():
 
         for game in currentGames:
             gameObjs = BaseballGames.curGame(game, gameObjs, './/li[@class = "outcomes total"]/text()',messageBox,
-                                                 'Football')
-            print(gameObjs)
-            print("game objs after entite gae")
+                                             'Football')
         time.sleep(random.randint(120,180))
 
 

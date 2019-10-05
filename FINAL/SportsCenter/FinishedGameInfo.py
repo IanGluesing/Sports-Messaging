@@ -4,7 +4,6 @@ import time
 import calendar
 import datetime as dt
 import random
-from SportsCenter import SlackBot
 from SportsCenter import Config
 from SportsCenter import BaseballGames
 from datetime import date
