@@ -42,15 +42,15 @@ def curGame(game, gameList, scoreLocation, messageBox, sportType):
     inList = False
 
     for currentGame in gameList:
-        # If the game mathces one of the games in the list, that means a game completion message was already sent
+        # If the game matches one of the games in the list, that means a game completion message was already sent
         if currentGame.team1 == teams[0] and currentGame.team2 == teams[1]:
             inList = True
             break
     if inList:
         if currentGame.score1 != scores[0] or currentGame.score2 != scores[1]:
-            tme = game.xpath('.//hgroup/h3/text()')[0].strip()
+            tme = game.xpath('.//hgroup/h3/text()')[0].strip() + "\n"
 
-            message = teams[0].strip() + ' ' + scores[0] + ' - ' + teams[1].strip() + ' ' + scores[1] + "\t" + tme
+            message = teams[0].strip() + ' ' + scores[0] + ' - ' + teams[1].strip() + ' ' + scores[1] + " --- " + tme
             SlackBot.sendMessage(messageBox, message)
             currentGame.score1 = scores[0]
             currentGame.score2 = scores[1]

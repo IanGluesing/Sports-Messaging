@@ -51,8 +51,8 @@ def getUrl(addition, sportType):
                 doc = lxml.html.fromstring(html.content)
                 # NCAA scores is set up a little differently compared to how NFL scores are set up
                 section = doc.xpath('.//section[@id = "section_sports"]')
-                weekNum = section[0].xpath('.//span[@class = "sp-filter-btn sports-weekly-header-dropdown"]/text()')[2]
-                weekNum = weekNum.strip().split(" ")[1]
+                lookingFor = './/span[@class = "sp-filter-btn sports-weekly-header-dropdown"]/text()'
+                weekNum = section[0].xpath(lookingFor)[2].strip().split(" ")[1]
                 # Returns the url of the current week of all ncaa games
                 return Config.ncaaWeb2 + weekNum + '/div1.a/', 'ncaa' + addition + '-scores'
             else:
@@ -61,3 +61,5 @@ def getUrl(addition, sportType):
             return Config.mlbWeb, 'mlb-final-scores'
         elif sportType == "BaseballCurrent":
             return '', 'mlb-scores'
+        elif sportType == 'NBAgames':
+            return Config.nbaWeb, 'nba-scores'
