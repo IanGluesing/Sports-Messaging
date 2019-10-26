@@ -5,7 +5,7 @@ import calendar
 import datetime as dt
 import random
 from SportsCenter import Config
-from SportsCenter import BaseballGames
+from SportsCenter import MLBGames
 from datetime import date
 
 
@@ -34,8 +34,8 @@ def checkFinishedGames():
 
         for game in gamesDone:
             # Adds finished games to the list using the method from the Baseball file
-            finishedGames = BaseballGames.finalGame(game, finishedGames, './/li[@class = "outcomes total"]/text()',
-                                                    messageBox)
+            finishedGames = MLBGames.finalGame(game, finishedGames, './/li[@class = "outcomes total"]/text()',
+                                               messageBox)
 
 
 def getUrl(addition, sportType):
@@ -43,8 +43,10 @@ def getUrl(addition, sportType):
         if sportType == 'Football':
             # If statements will only work based on current days of the week and time of day
             if calendar.day_name[date.today().weekday()] in ['Monday','Thursday'] and dt.datetime.now().hour > 17:
+                # Returns the link to the website as well as the chat room any messages should be sent to
                 return Config.nflWebsite, 'nfl' + addition + '-scores'
             elif calendar.day_name[date.today().weekday()] in ['Sunday'] and dt.datetime.now().hour > 11:
+                # Returns the link to the website as well as the chat room any messages should be sent to
                 return Config.nflWebsite, 'nfl' + addition + '-scores'
             elif calendar.day_name[date.today().weekday()] in ['Friday','Saturday'] and dt.datetime.now().hour > 10:
                 html = requests.get(Config.ncaaWeb1)
@@ -58,8 +60,10 @@ def getUrl(addition, sportType):
             else:
                 time.sleep(60)
         elif sportType == "Baseball":
+            # Returns the website for baseball games as well as the chat room for where messages need to be sent
             return Config.mlbWeb, 'mlb-final-scores'
         elif sportType == "BaseballCurrent":
             return '', 'mlb-scores'
         elif sportType == 'NBAgames':
+            # Returns the website for nba games as well as the chat room for where messages need to be sent
             return Config.nbaWeb, 'nba-scores'

@@ -16,6 +16,7 @@ def checkAllGames():
     finishedGames = [FinishedGameInfo.FinishedGame(["", ""])]
     currentGames = [CurrentGames.CurrentGame(["", ""], ["", ""])]
     while True:
+        # Gets the url for the baseball scores website as well as for the message box for baseball games
         url, messageBox = FinishedGameInfo.getUrl('', 'Baseball')
         doc = lxml.html.fromstring(requests.get(url).content)
         # Gets all baseball game elements with the specified div elements for the day
@@ -47,19 +48,29 @@ def curGame(game, gameList, scoreLocation, messageBox, sportType):
             inList = True
             break
     if inList:
+        # If the game we are checking is in the list and the score has changed from the last time, we run this if
+        # statement
         if currentGame.score1 != scores[0] or currentGame.score2 != scores[1]:
+            # Gets the current time left for whatever game and sport we are checking
             tme = game.xpath('.//hgroup/h3/text()')[0].strip() + "\n"
 
+            # Formats the message that is going to be sent to a chat room
             message = teams[0].strip() + ' ' + scores[0] + ' - ' + teams[1].strip() + ' ' + scores[1] + " --- " + tme
+            # Sends message to the correct chat room
             SlackBot.sendMessage(messageBox, message)
+            # Then updates new scores for each team
             currentGame.score1 = scores[0]
             currentGame.score2 = scores[1]
             return gameList
+        # If the game scores have not changed, then the list is just returned with no updates
         return gameList
     else:
+        # If the game we are looking at is not currently in the gamelist, then it will be added to the beginning of the
+        # list
         gameList.insert(0, CurrentGames.CurrentGame(teams,scores))
         gameList = gameList[:30]
         tme = game.xpath('.//hgroup/h3/text()')[0].strip()
+        # Sends the game to the new game method to send a specific message
         CurrentGames.gameStarting(teams, scores, tme, sportType)
         return gameList
 
