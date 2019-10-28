@@ -71,4 +71,3 @@ def redditBot2():
             # Checks every 8 hours to see if the current day is in the list of game days
             print(date.today().weekday())
             time.sleep(28800)
-

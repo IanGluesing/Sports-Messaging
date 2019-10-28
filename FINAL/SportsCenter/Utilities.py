@@ -1,13 +1,14 @@
 import time
 import datetime as dt
 from datetime import date
+from datetime import datetime
 import lxml.html
 import requests
 import calendar
 
 from SportsCenter import Config
 from SportsCenter import SlackBot
-
+# ncaaBasketballMonths = [11,12,1,2,3,4]
 
 class CurrentGame:
     # Class to keep track of all current games and there scores
@@ -25,15 +26,33 @@ class FinishedGame:
         self.team2 = teams[1]
 
 
-def gameStarting(teams, scores, quarter, sport):
+def mainLoop(sportType, scoreLocation, currentGames, finishedGames):
+    # Gets the url for the baseball scores website as well as for the message box for baseball games
+    url, messageBox = getUrl(sportType)
+    doc = lxml.html.fromstring(requests.get(url).content)
+    # Gets all baseball game elements with the specified div elements for the day
+    todaysGames = doc.xpath('.//div[@class = "game mid-event pre " or @class = "game mid-event pre game-even"]')
+    todaysGames += doc.xpath('.//div[@class = "game post-event pre " or @class = "game post-event pre game-even"]')
+    for game in todaysGames:
+        if game.get('class') in ['game mid-event pre ', 'game mid-event pre game-even']:
+            # see if scores have changed and print out info
+            # call method to do this
+            currentGames = curGame(game, currentGames, scoreLocation, messageBox)
+        if game.get('class') in ['game post-event pre ', 'game post-event pre game-even']:
+            # see if game is in the finishedgames list
+            # Process finished games using this method as well as getting the scores from the html
+            finishedGames = finalGame(game, finishedGames, scoreLocation, messageBox)
+    return currentGames, finishedGames
+
+
+def gameStarting(teams, scores, quarter, messageBox):
     # Formats the message that is sent to the user for a game that has just started
     message = (teams[0].strip() + " vs " + teams[1].strip() + " has started\n")
     message += (scores[0] + " - " + scores[1] + " --- " + quarter + "\n")
-    filler1, messageBox = getUrl(sport)
     SlackBot.sendMessage(messageBox, message)
 
 
-def curGame(game, gameList, scoreLocation, messageBox, sportType):
+def curGame(game, gameList, scoreLocation, messageBox):
     # might need to change these because they might have different values for games that are not finished yet
     scores = game.xpath(scoreLocation)
     # Gets team names from the game it is looking at
@@ -41,7 +60,7 @@ def curGame(game, gameList, scoreLocation, messageBox, sportType):
     inList = False
 
     for currentGame in gameList:
-        # If the game matches one of the games in the list, that means a game completion message was already sent
+        # Looks fot a game in the list with matching team names to the game we are currently looking at
         if currentGame.team1 == teams[0] and currentGame.team2 == teams[1]:
             inList = True
             break
@@ -66,11 +85,12 @@ def curGame(game, gameList, scoreLocation, messageBox, sportType):
         # If the game we are looking at is not currently in the gamelist, then it will be added to the beginning of the
         # list
         gameList.insert(0, CurrentGame(teams, scores))
-        gameList = gameList[:30]
+        gameList = gameList[:50]
         tme = game.xpath('.//hgroup/h3/text()')[0].strip()
         # Sends the game to the new game method to send a specific message
-        gameStarting(teams, scores, tme, sportType)
+        gameStarting(teams, scores, tme, messageBox)
         return gameList
+
 
 def finalGame(game, gameList, scoreLocation, messageBox):
     # need to take in type of time keeping to be able to use this emthod for football and baseball
@@ -93,14 +113,14 @@ def finalGame(game, gameList, scoreLocation, messageBox):
         message += teams[1].strip() + "-" + scores[1] + "\n"
         SlackBot.sendMessage(messageBox, message)
         gameList.insert(0, FinishedGame(teams))
-        return gameList[:30]
+        return gameList[:50]
     else:
         return gameList
 
 
 def getUrl(sportType):
     while True:
-        if sportType == 'Football':
+        if sportType == 'Football' and datetime.now().month in [1,2,8,9,10,11,12]:
             # If statements will only work based on current days of the week and time of day
             if calendar.day_name[date.today().weekday()] in ['Monday','Thursday'] and dt.datetime.now().hour > 17:
                 # Returns the link to the website as well as the chat room any messages should be sent to
@@ -119,9 +139,9 @@ def getUrl(sportType):
                 return Config.ncaaWeb2 + weekNum + '/div1.a/', 'ncaa-football-scores'
             else:
                 time.sleep(60)
-        elif sportType == "Baseball":
+        elif sportType == "Baseball" and datetime.now().month in [3,4,5,6,7,8,9,10,11]:
             # Returns the website for baseball games as well as the chat room for where messages need to be sent
             return Config.mlbWeb, 'mlb-scores'
-        elif sportType == 'NBAgames':
+        elif sportType == 'NBAgames' and datetime.now().month in [1,2,3,4,10,11,12]:
             # Returns the website for nba games as well as the chat room for where messages need to be sent
             return Config.nbaWeb, 'nba-scores'
